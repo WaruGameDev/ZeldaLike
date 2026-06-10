@@ -8,10 +8,15 @@ public class TopDownCharacterController : MonoBehaviour
 
     [Header("References")]
     [SerializeField] private Camera isoCamera;
+    AnimationCharacter animationCharacter;
+     
 
     private Rigidbody _rb;
     private Vector3 _moveDir;   
-
+    void Start()   
+    {
+        animationCharacter = GetComponent<AnimationCharacter>();
+    }
     private void Awake()
     {
         _rb = GetComponent<Rigidbody>();
@@ -24,7 +29,7 @@ public class TopDownCharacterController : MonoBehaviour
 
     public void Move(Vector2 input)
     {            
-
+        
         if (input.x == 0f && input.y == 0f)
         {
             _moveDir = Vector3.zero;
@@ -50,6 +55,11 @@ public class TopDownCharacterController : MonoBehaviour
 
     private void HandleMovement()
     {
+        if(animationCharacter.isAttacking) 
+        {
+            _rb.linearVelocity = Vector3.zero;
+            return; // Evitar moverse durante el ataque
+        }
         // Preservar velocidad Y (gravedad) y reemplazar solo XZ
         Vector3 targetVelocity = _moveDir * moveSpeed;
         targetVelocity.y = _rb.linearVelocity.y;
