@@ -1,12 +1,23 @@
+using System.Collections;
 using UnityEngine;
 
 public class Attack : MonoBehaviour
 {
     public float damage = 10f;
     public Collider damageCollider;
+    AnimationCharacter animationCharacter;
+    void Start()
+    {
+        animationCharacter = GetComponent<AnimationCharacter>();
+    }
 
+    public float attackCooldown = 1f;
+    
     public void PerformAttack()
     {
+        if (animationCharacter.isAttacking) return; // Evitar ataques consecutivos 
+        animationCharacter.isAttacking = true;
+        animationCharacter.animator.SetBool("Attack", animationCharacter.isAttacking);
         Collider[]hits = Physics.OverlapBox(damageCollider.bounds.center, 
         damageCollider.bounds.extents, damageCollider.transform.rotation);
         foreach (Collider hit in hits)        {
@@ -19,8 +30,18 @@ public class Attack : MonoBehaviour
                     Debug.Log($"{hit.gameObject.name} ha recibido {damage} de daño.");
                 }
             }
-        }        
+        }      
+        StartCoroutine(AttackCooldown());  
     }
-    
-
+    IEnumerator AttackCooldown()
+    {
+        yield return new WaitForSeconds(attackCooldown);
+        EndAttack();
+        yield break;
+    }
+    public void EndAttack()
+    {
+        animationCharacter.isAttacking = false;
+        animationCharacter.animator.SetBool("Attack", animationCharacter.isAttacking);
+    }   
 }
